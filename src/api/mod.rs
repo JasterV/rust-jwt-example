@@ -2,8 +2,9 @@ mod filters;
 mod handlers;
 
 use crate::db::schemas::Role;
-use crate::services::AppServices;
-use filters::auth::with_auth;
+use crate::db::DB;
+use crate::services::jwt_service::JwtService;
+use filters::{auth::with_auth, db::with_db, jwt::with_jwt};
 use handlers::{handle_rejection, hello_admin, hello_user, login_handler};
 use serde::{Deserialize, Serialize};
 use warp::{Filter, Rejection, Reply};
@@ -26,14 +27,13 @@ pub struct ErrorResponse {
 }
 
 pub fn routes(
-    app_services: AppServices,
+    db: DB,
+    jwt_service: JwtService,
 ) -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
-    let jwt_service = app_services.jwt_service.clone();
-    let login_service = app_services.login_service.clone();
-
     let login_route = warp::path!("login")
         .and(warp::post())
-        .and(warp::any().map(move || login_service.clone()))
+        .and(with_db(db.clone()))
+        .and(with_jwt(jwt_service.clone()))
         .and(warp::body::json())
         .and_then(login_handler);
 

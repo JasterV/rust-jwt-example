@@ -1,7 +1,7 @@
 use crate::constants::BEARER;
 use crate::db::schemas::Role;
 use crate::error::Error;
-use crate::services::JwtService;
+use crate::services::jwt_service::JwtService;
 use crate::utils::{Result, WebResult};
 use warp::{
     filters::header::headers_cloned,

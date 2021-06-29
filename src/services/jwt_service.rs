@@ -23,6 +23,7 @@ impl JwtService {
     pub fn new(secret: String) -> Self {
         JwtService { secret }
     }
+    
     pub fn create_jwt(&self, uid: &str, role: &Role) -> Result<String> {
         let expiration = Utc::now()
             .checked_add_signed(chrono::Duration::seconds(60))

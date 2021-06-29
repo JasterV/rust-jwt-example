@@ -11,14 +11,16 @@ mod utils;
 
 use config::Config;
 use dotenv::dotenv;
-use services::AppServices;
+use services::jwt_service::JwtService;
 
 #[tokio::main]
 async fn main() {
     dotenv().ok();
     let config = envy::from_env::<Config>().unwrap();
+
     let db = db::DB::new();
-    let app_services = AppServices::new(config, db);
-    let routes = api::routes(app_services);
+    let jwt_service = JwtService::new(config.jwt_secret);
+    let routes = api::routes(db, jwt_service);
+    
     warp::serve(routes).run(([127, 0, 0, 1], 8000)).await;
 }
